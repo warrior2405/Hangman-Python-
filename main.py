@@ -162,7 +162,9 @@ def hangman(tries):
                            -
                         """,
     ]
-    return stages[TRIES - tries]
+    # Fix: Make sure the index is within bounds
+    index = max(0, min(TRIES - tries, len(stages) - 1))
+    return stages[index]
 
 def get_word():
     word_dict = random.choice(wordList)
@@ -203,8 +205,7 @@ def update_scores(scores, won, word):
     game_record = {
         "date": now,
         "word": word,
-        "result": "win" if won else "loss",
-        "letters_left": 0 if won else word.count('_')
+        "result": "win" if won else "loss"
     }
     scores["games"].append(game_record)
     
@@ -250,26 +251,26 @@ def show_progress_graph(scores):
         print("No game data available to display graph.")
         return
         
-    # Extract win/loss data for graph
-    games_count = min(len(scores["games"]), 20)  # Show at most last 20 games
-    recent_games = scores["games"][-games_count:]
-    
-    # Prepare data for plotting
-    game_numbers = list(range(1, games_count + 1))
-    results = [1 if game["result"] == "win" else 0 for game in recent_games]
-    
-    # Calculate cumulative wins and win rate
-    cumulative_wins = []
-    win_rates = []
-    win_count = 0
-    
-    for i, result in enumerate(results):
-        if result == 1:
-            win_count += 1
-        cumulative_wins.append(win_count)
-        win_rates.append(win_count / (i + 1))
-    
     try:
+        # Extract win/loss data for graph
+        games_count = min(len(scores["games"]), 20)  # Show at most last 20 games
+        recent_games = scores["games"][-games_count:]
+        
+        # Prepare data for plotting
+        game_numbers = list(range(1, games_count + 1))
+        results = [1 if game["result"] == "win" else 0 for game in recent_games]
+        
+        # Calculate cumulative wins and win rate
+        cumulative_wins = []
+        win_rates = []
+        win_count = 0
+        
+        for i, result in enumerate(results):
+            if result == 1:
+                win_count += 1
+            cumulative_wins.append(win_count)
+            win_rates.append(win_count / (i + 1))
+        
         # Create plot
         plt.figure(figsize=(10, 6))
         
